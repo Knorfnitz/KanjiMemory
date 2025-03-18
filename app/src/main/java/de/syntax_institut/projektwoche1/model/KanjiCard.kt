@@ -4,7 +4,9 @@ data class KanjiCard(
     val id: Int,
     val kanji: String,
     val meaning: List<String>,
-    val examples: List<Example>
+    val examples: List<Example>,
+    val isFlipped: Boolean = false,
+    val isMatched: Boolean = false
 )
 
 data class Example(
