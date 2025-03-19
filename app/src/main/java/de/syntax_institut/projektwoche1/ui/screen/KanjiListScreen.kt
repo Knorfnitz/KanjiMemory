@@ -77,6 +77,7 @@ fun KanjiListScreen(
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.weight(1f)
+                                .padding(24.dp)
                         )
 
                         Column(modifier = Modifier.weight(2f)) {

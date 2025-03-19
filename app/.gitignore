@@ -130,5 +130,4 @@
  
  !/gradle/wrapper/gradle-wrapper.jar
 /build/
-/build/intermediates/
-/build/
+
