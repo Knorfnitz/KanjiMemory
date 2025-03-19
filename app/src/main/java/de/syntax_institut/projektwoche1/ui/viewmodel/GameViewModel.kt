@@ -32,7 +32,7 @@ class GameViewModel : ViewModel() {
     private var isTimerRunning = false
 
     fun onCardSelected(index: Int) {
-        if (!_isGameStarted.value) return // Falls das Spiel nicht gestartet ist, keine Auswahl ermöglichen
+        if (!_isGameStarted.value) return
 
         val currentCards = _cards.value.toMutableList()
         if (currentCards[index].isMatched || firstSelectedIndex == index) return

@@ -1,4 +1,4 @@
-package de.syntax_institut.projektwoche1.ui.Screen
+package de.syntax_institut.projektwoche1.ui.screen
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable

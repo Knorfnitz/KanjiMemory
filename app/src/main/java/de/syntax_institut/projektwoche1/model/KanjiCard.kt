@@ -1,5 +1,7 @@
 package de.syntax_institut.projektwoche1.model
 
+import kotlinx.serialization.Serializable
+
 data class KanjiCard(
     val id: Int,
     val kanji: String,
@@ -8,7 +10,7 @@ data class KanjiCard(
     val isFlipped: Boolean = false,
     val isMatched: Boolean = false
 )
-
+@Serializable
 data class Example(
     val jp: String,
     val de: String

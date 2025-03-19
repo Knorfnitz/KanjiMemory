@@ -1,4 +1,4 @@
-package de.syntax_institut.projektwoche1.ui.Screen
+package de.syntax_institut.projektwoche1.ui.screen
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -17,14 +17,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.BlendMode.Companion.Screen
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import de.syntax_institut.projektwoche1.model.Example
 import de.syntax_institut.projektwoche1.ui.viewmodel.GameViewModel
 import kotlinx.serialization.Serializable
+
 
 @Serializable
 object GameRoute
@@ -32,16 +35,31 @@ object GameRoute
 @Serializable
 object ProfilRoute
 
+@Serializable
+object KanjiListRoute
+
+@Serializable
+data class KanjiDetailsRoute(
+    val id: Int,
+  /*  val kanji: String,
+    val meaning: List<String>,
+    val examples: List<Example>,
+    val isFlipped: Boolean,
+    val isMatched: Boolean*/
+)
+
 enum class TabItem(val route: Any, val icon: ImageVector, val title: String) {
     GAME(GameRoute, Icons.Default.Star, "Spiel"),
+    KANJI(KanjiListRoute, Icons.Default.Search, "Kanji"),
     PROFIL(ProfilRoute, Icons.Default.Person, "Profil"),
 }
 
 @Composable
-fun AppStart(viewModel: GameViewModel = viewModel()) {
+fun AppStart(
+    gameViewModel: GameViewModel = viewModel()) {
     val navController = rememberNavController()
     var selectedTab by rememberSaveable { mutableStateOf(TabItem.GAME) }
-    val isGameStarted by viewModel.isGameStarted.collectAsState()
+    val isGameStarted by gameViewModel.isGameStarted.collectAsState()
 
     Scaffold(
         bottomBar = {
@@ -73,8 +91,29 @@ fun AppStart(viewModel: GameViewModel = viewModel()) {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable<GameRoute> {
-                GameScreen(viewModel = viewModel)
+                GameScreen(viewModel = gameViewModel)
             }
+
+            composable<KanjiListRoute> {
+                KanjiListScreen(
+                    onNavigateToKanjiDetails = { kanji ->
+                        navController.navigate(
+                            KanjiDetailsRoute(
+                                id = kanji.id,
+                             /*   kanji = kanji.kanji,
+                                meaning = kanji.meaning,
+                                examples = kanji.examples,
+                                isFlipped = kanji.isFlipped,
+                                isMatched = kanji.isMatched*/
+                            )
+                        )
+                    }
+                )
+            }
+            composable<KanjiDetailsRoute> {
+                KanjiDetailScreen()
+            }
+            
             composable<ProfilRoute> {
                 ProfilScreen()
             }
