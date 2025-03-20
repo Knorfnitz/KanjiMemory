@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import de.syntax_institut.projektwoche1.ui.components.GameCard
 import de.syntax_institut.projektwoche1.ui.viewmodel.GameViewModel
+import java.util.Locale
 
 @Composable
 fun GameScreen(
@@ -21,11 +22,15 @@ fun GameScreen(
     viewModel: GameViewModel
 ) {
     val cards by viewModel.cards.collectAsState()
-    val isGameOver by viewModel.isGameOver.collectAsState()
-    val matches by viewModel.matches.collectAsState()
     val isGameStarted by viewModel.isGameStarted.collectAsState()
     val timer by viewModel.timer.collectAsState()
+    val score by viewModel.score.collectAsState()
+    val showBonusDialog by viewModel.showBonusDialog.collectAsState()
+    val correctAnswer by viewModel.correctAnswer.collectAsState()
     val selectedCardCount by viewModel.selectedCardCount.collectAsState()
+    val awaitingTranslationForId by viewModel.awaitingTranslationForId.collectAsState()
+    var userInput by remember { mutableStateOf("") }
+    var isAnswerWrong by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier
@@ -34,28 +39,35 @@ fun GameScreen(
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Column {
+            if (!isGameStarted) {
+                Text(
+                    text = "Memory -  神経衰弱",
+                    modifier = Modifier.fillMaxWidth(),
+                    fontSize = 36.sp,
+                    textAlign = TextAlign.Center
+                )
+            }
             Text(
-                text = "Memory -  神経衰弱",
-                modifier = Modifier.fillMaxWidth(),
-                fontSize = 36.sp,
-                textAlign = TextAlign.Center
-            )
-
-            Text(
-                text = "Zeit: ${String.format("%02d:%02d", timer / 60, timer % 60)}",
+                text = "Zeit: ${String.format(Locale.GERMANY, "%02d:%02d", timer / 60, timer % 60)}",
                 modifier = Modifier.fillMaxWidth(),
                 fontSize = 40.sp,
                 textAlign = TextAlign.Center
             )
+
+            Text(
+                text = "Punkte: $score",
+                modifier = Modifier.fillMaxWidth(),
+                fontSize = 32.sp,
+                textAlign = TextAlign.Center
+            )
         }
-
-
 
         LazyVerticalGrid(columns = Fixed(5)) {
             items(cards.size) { index ->
                 GameCard(card = cards[index], { viewModel.onCardSelected(index) })
             }
         }
+
         Column {
             Row(
                 horizontalArrangement = Arrangement.SpaceEvenly,
@@ -88,14 +100,78 @@ fun GameScreen(
                     Button(onClick = { viewModel.restartGame() }) {
                         Text("Neues Spiel")
                     }
-                    Button(onClick = { viewModel.pauseTimer() }) {
-                        Text("Pause")
-                    }
                 }
             }
         }
     }
+
+    if (showBonusDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                viewModel.checkBonusTranslation("")
+                isAnswerWrong = false
+            },
+            title = { Text("Übersetze!") },
+            text = {
+                Column {
+                    val kanjiObject = cards.find { it.id == awaitingTranslationForId }
+                    val kanjiSymbol = kanjiObject?.kanji ?: "?"
+
+                    Text(
+                        text = "Was bedeutet das Kanji: $kanjiSymbol?",
+                        fontSize = 20.sp
+                    )
+
+                    if (isAnswerWrong) {
+                        Text(
+                            "Korrekte Antwort: ${correctAnswer.joinToString(", ")}",
+                            color = Color.Red
+                        )
+
+                        LaunchedEffect(Unit) {
+                            kotlinx.coroutines.delay(2000)
+                            viewModel.checkBonusTranslation("")
+                            isAnswerWrong = false
+                        }
+                    }
+
+                    OutlinedTextField(
+                        value = userInput,
+                        onValueChange = { userInput = it },
+                        label = { Text("Übersetzung eingeben") },
+                        singleLine = true
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val isCorrect = correctAnswer.any { it.equals(userInput, ignoreCase = true) }
+                        if (isCorrect) {
+                            viewModel.checkBonusTranslation(userInput)
+                        } else {
+                            isAnswerWrong = true
+                        }
+                        userInput = ""
+                    }
+                ) {
+                    Text("Prüfen")
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = {
+                        viewModel.checkBonusTranslation("")
+                        isAnswerWrong = false
+                    }
+                ) {
+                    Text("Überspringen")
+                }
+            }
+        )
+    }
 }
+
 
 @Preview(showBackground = true)
 @Composable

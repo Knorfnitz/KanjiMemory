@@ -3,6 +3,7 @@ package de.syntax_institut.projektwoche1.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import de.syntax_institut.projektwoche1.data.DataSource
+import de.syntax_institut.projektwoche1.data.DataSource.kanjiList
 import de.syntax_institut.projektwoche1.model.KanjiCard
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,6 +30,19 @@ class GameViewModel : ViewModel() {
     private val _timer = MutableStateFlow(0L)
     val timer = _timer.asStateFlow()
 
+    private val _score = MutableStateFlow(0)
+    val score = _score.asStateFlow()
+
+    private val _awaitingTranslationForId = MutableStateFlow<Int?>(null)
+    val awaitingTranslationForId = _awaitingTranslationForId.asStateFlow()
+
+    private val _showBonusDialog = MutableStateFlow(false)
+    val showBonusDialog = _showBonusDialog.asStateFlow()
+
+    private val _correctAnswer = MutableStateFlow<List<String>>(emptyList())
+    val correctAnswer = _correctAnswer.asStateFlow()
+
+
     private var isTimerRunning = false
 
     fun onCardSelected(index: Int) {
@@ -48,6 +62,11 @@ class GameViewModel : ViewModel() {
                 currentCards[firstIndex] = currentCards[firstIndex].copy(isMatched = true)
                 currentCards[index] = currentCards[index].copy(isMatched = true)
                 _matches.value++
+                _score.value += 10
+
+                _awaitingTranslationForId.value = currentCards[firstIndex].id
+                _correctAnswer.value = currentCards[firstIndex].meaning
+                _showBonusDialog.value = true
             } else {
                 viewModelScope.launch {
                     delay(1000)
@@ -65,12 +84,23 @@ class GameViewModel : ViewModel() {
         }
     }
 
+    fun checkBonusTranslation(userInput: String) {
+        val isCorrect = _correctAnswer.value.any { it.equals(userInput, ignoreCase = true) }
+        if (isCorrect) {
+            _score.value += 10
+        }
+        _showBonusDialog.value = false
+        _awaitingTranslationForId.value = null
+    }
+
     fun restartGame() {
-        _cards.value = generateShuffledCards()
+        _cards.value = emptyList()
         firstSelectedIndex = null
         _isGameOver.value = false
         _matches.value = 0
+        _score.value = 0
         _isGameStarted.value = false
+        _awaitingTranslationForId.value = null
         resetTimer()
     }
 
@@ -110,7 +140,5 @@ class GameViewModel : ViewModel() {
         _timer.value = 0
     }
 
-    fun pauseTimer() {
-        isTimerRunning = false
-    }
+
 }

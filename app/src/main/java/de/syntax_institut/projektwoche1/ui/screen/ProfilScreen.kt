@@ -9,7 +9,7 @@ import androidx.compose.ui.tooling.preview.Preview
 fun ProfilScreen(
     modifier: Modifier = Modifier
 ) {
-Text("Profil")
+Text("Coming soon...")
 }
 
 @Preview(showBackground = true)
