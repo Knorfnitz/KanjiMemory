@@ -88,7 +88,6 @@ fun GameCard(
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
                     color = if (card.isMatched) Color.Gray else Color.Black,
-                    modifier = Modifier.rotate(180f)
                 )
             }
         }
