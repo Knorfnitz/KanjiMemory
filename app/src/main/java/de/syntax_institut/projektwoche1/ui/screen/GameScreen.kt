@@ -1,5 +1,6 @@
 package de.syntax_institut.projektwoche1.ui.screen
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells.Fixed
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -7,11 +8,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import de.syntax_institut.projektwoche1.R
 import de.syntax_institut.projektwoche1.ui.components.GameCard
 import de.syntax_institut.projektwoche1.ui.viewmodel.GameViewModel
 import java.util.Locale
@@ -40,11 +44,11 @@ fun GameScreen(
     ) {
         Column {
             if (!isGameStarted) {
-                Text(
-                    text = "Memory -  神経衰弱",
-                    modifier = Modifier.fillMaxWidth(),
-                    fontSize = 36.sp,
-                    textAlign = TextAlign.Center
+                Image(
+                    painter = painterResource(id = R.drawable.memory_red),
+                    contentDescription = "Überschrift Memory",
+                    contentScale = ContentScale.FillWidth,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
                 )
             }
             Text(
